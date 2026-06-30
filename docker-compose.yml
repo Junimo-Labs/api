@@ -1,0 +1,17 @@
+services:
+  junimo-api:
+    build: .
+    image: junimo-api:latest
+    container_name: junimo-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      JUNIMO_SAVES_DIR: /saves
+      JUNIMO_CACHE_TTL_SECONDS: "300"
+      # JUNIMO_API_TOKEN: change-me
+    volumes:
+      # Mount your local Stardew Valley Saves directory read-only.
+      # On Windows host: %APPDATA%/StardewValley/Saves
+      # On Linux:       ~/.config/StardewValley/Saves
+      - ./saves:/saves:ro
