@@ -124,12 +124,17 @@ class SaveStore:
                 return cached
 
             started = time.perf_counter()
-            data = await asyncio.to_thread(
+            parsed = await asyncio.to_thread(
                 parse_save_file, save_path, self.settings.max_save_bytes
             )
             duration_ms = (time.perf_counter() - started) * 1000.0
 
-            data["dateString"] = self._build_date_string(data)
+            summary = parsed.get("summary") or {}
+            summary["dateString"] = self._build_date_string(summary)
+            data = {
+                "summary": summary,
+                "farm": parsed.get("farm"),
+            }
 
             entry = SaveCacheEntry(
                 slot=slot,
@@ -172,8 +177,8 @@ class SaveStore:
                 self._locks.pop(slot, None)
 
     @staticmethod
-    def _build_date_string(data: dict) -> Optional[str]:
-        player = data.get("player") or {}
+    def _build_date_string(summary: dict) -> Optional[str]:
+        player = summary.get("player") or {}
         try:
             day = player.get("dayOfMonthForSaveGame")
             season = player.get("seasonForSaveGame")

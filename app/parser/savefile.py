@@ -285,14 +285,29 @@ def _player_info(node, children: List, v1_3: bool, farmer_friendships) -> Dict[s
 
 
 def parse_save_xml(xml_bytes: bytes) -> Dict[str, Any]:
-    """Parse a Stardew Valley save XML buffer and return a JSON-ready dict.
+    """Parse a Stardew Valley save XML buffer.
 
-    The shape is intentionally close to the upstream SDV-Summary fields, with
-    sprite-rendering bits dropped: this service reports semantic state, not
-    pixels.
+    Returns the structured shape used by the API:
+
+        {
+          "summary": { ...player view, see PROTOCOL §2.3 data... },
+          "farm":    { ...farm geometry, see PROTOCOL §2.4 data... } or None,
+        }
+
+    Doing both views in one parse (instead of two parser entry points) keeps
+    cache entries 1:1 with on-disk saves.
     """
+    # Imported lazily to avoid an import cycle: app.parser.farm imports
+    # helpers from this module.
+    from .farm import extract_farm
 
     root = ET.fromstring(xml_bytes)
+    summary = _build_summary(root)
+    farm = extract_farm(root)
+    return {"summary": summary, "farm": farm}
+
+
+def _build_summary(root) -> Dict[str, Any]:
     v1_3 = _player_has_v1_3(root)
 
     children = _iter_npcs(root, CHILD_LOCATIONS, CHILD_TYPES)
@@ -320,8 +335,6 @@ def parse_save_xml(xml_bytes: bytes) -> Dict[str, Any]:
     animals = _get_animals(farm_location, lambda loc, t: _iter_npcs(root, loc, t))
 
     current_season = _findtext(root, "currentSeason")
-    if current_season is not None and current_season not in SEASONS:
-        current_season = current_season
 
     unique_game_id_text = _findtext(root, "uniqueIDForThisGame")
     try:

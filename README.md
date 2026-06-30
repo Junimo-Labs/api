@@ -35,11 +35,16 @@ JUNIMO_SAVES_DIR=/path/to/Saves uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 ## API
 
+The full request/response schema lives in [`docs/PROTOCOL.md`](docs/PROTOCOL.md).
+Quick overview:
+
 | Method | Path                          | Auth (if `JUNIMO_API_TOKEN` set) | Description |
 |--------|-------------------------------|----------------------------------|-------------|
 | GET    | `/healthz`                    | no                               | Liveness + saves dir check. |
 | GET    | `/saves`                      | no                               | List slots with mtime / cache state. |
 | GET    | `/saves/{slot}`               | no                               | Cached parsed save (re-parsed if mtime changed). |
+| GET    | `/saves/{slot}/farm`          | no                               | Farm tile geometry for frontend rendering. |
+| GET    | `/saves/{slot}/full`          | no                               | `summary` + `farm` in one round-trip. |
 | POST   | `/saves/{slot}/refresh`       | yes                              | Force re-parse of one slot. |
 | POST   | `/refresh`                    | yes                              | Force re-parse of every slot. |
 

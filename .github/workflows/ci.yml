@@ -108,6 +108,11 @@ jobs:
           grep -q "Test_123456" /tmp/saves.json
           curl -fsS http://localhost:8000/saves/Test_123456 | tee /tmp/save.json
           grep -q '"name": "CI"' /tmp/save.json
+          curl -fsS http://localhost:8000/saves/Test_123456/farm | tee /tmp/farm.json
+          grep -q '"mapType"' /tmp/farm.json
+          curl -fsS http://localhost:8000/saves/Test_123456/full | tee /tmp/full.json
+          grep -q '"summary"' /tmp/full.json
+          grep -q '"farm"' /tmp/full.json
           curl -fsS -X POST http://localhost:8000/saves/Test_123456/refresh >/dev/null
           curl -fsS -X POST http://localhost:8000/refresh >/dev/null
 
