@@ -105,9 +105,9 @@ jobs:
 
           curl -fsS http://localhost:8000/healthz
           curl -fsS http://localhost:8000/saves | tee /tmp/saves.json
-          grep -q "Test_123456" /tmp/saves.json
+          grep -q '"slot":[[:space:]]*"Test_123456"' /tmp/saves.json
           curl -fsS http://localhost:8000/saves/Test_123456 | tee /tmp/save.json
-          grep -q '"name": "CI"' /tmp/save.json
+          grep -q '"name":[[:space:]]*"CI"' /tmp/save.json
           curl -fsS http://localhost:8000/saves/Test_123456/farm | tee /tmp/farm.json
           grep -q '"mapType"' /tmp/farm.json
           curl -fsS http://localhost:8000/saves/Test_123456/full | tee /tmp/full.json
